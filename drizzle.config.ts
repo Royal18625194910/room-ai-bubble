@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
 
-console.log(process.env.NEXT_PUBLIC_NEON_URL);
+console.log('1',process.env.NEXT_PUBLIC_NEON_URL);
 
 export default defineConfig({
   schema: './config/schema.ts',
