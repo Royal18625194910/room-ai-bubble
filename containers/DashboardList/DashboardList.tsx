@@ -20,23 +20,23 @@ const DashboardList = () => {
   }, []);
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <h2 className="font-bold text-3xl">Hello, Bubble</h2>
-        <Button>+ Redesign Room</Button>
-      </div>
+		<div>
+			<div className="flex justify-between items-center">
+				<h2 className="font-bold text-3xl">Hello, Bubble</h2>
+				<Button>+ Redesign Room</Button>
+			</div>
 
-      {rooms.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="mt-10 p-3 grid grid-cols-2 md:grid-cols-3 gap-6 gap-y-10">
-          {rooms.map((room: any) => (
-            <RoomDesignCard key={room.id} room={room} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+			{rooms.length === 0 ? (
+				<EmptyState />
+			) : (
+				<div className="mt-10 px-40 grid grid-cols-2 md:grid-cols-3 gap-6 gap-y-10">
+					{rooms.map((room: any) => (
+						<RoomDesignCard key={room.id} room={room} />
+					))}
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default DashboardList;
