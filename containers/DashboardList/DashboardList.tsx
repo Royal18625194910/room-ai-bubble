@@ -2,28 +2,32 @@
 import { Button } from "@/components/ui/button";
 import { db } from "@/config/db";
 import { aiGeneratedImage } from "@/config/schema";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import EmptyState from "../EmptyState/EmptyState";
 import RoomDesignCard from "../RoomDesignCard/RoomDesignCard";
 
 const DashboardList = () => {
-  const [rooms, setRooms] = useState([]);
+	const [rooms, setRooms] = useState([]);
+	const router = useRouter();
 
-  const getRooms = async () => {
-    const res = await db.select().from(aiGeneratedImage);
-    setRooms(res as any);
-    console.log("res", res);
-  };
+	const getRooms = async () => {
+		const res = await db.select().from(aiGeneratedImage);
+		setRooms(res as any);
+		console.log("res", res);
+	};
 
-  useEffect(() => {
-    getRooms();
-  }, []);
+	useEffect(() => {
+		getRooms();
+	}, []);
 
-  return (
+	return (
 		<div>
 			<div className="flex justify-between items-center">
 				<h2 className="font-bold text-3xl">Hello, Bubble</h2>
-				<Button>+ Redesign Room</Button>
+				<Button onClick={() => router.push("/dashboard/create-new")}>
+					+ Redesign Room
+				</Button>
 			</div>
 
 			{rooms.length === 0 ? (
