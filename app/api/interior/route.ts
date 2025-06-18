@@ -59,7 +59,7 @@ const aiGenerateImg = async (image: string, prompt: string) => {
   return output[0].url().href
 }
 
-export const saveImg = async (imgFile: any) => {
+const saveImg = async (imgFile: any) => {
     const {url} = await imagekit.upload({
         file: imgFile,
         fileName: Date.now() + Math.floor(Math.random() * 1000) + '.png',
