@@ -27,6 +27,9 @@ export const designTypeList = [
     }
 ]
 
+// 产品名
+export const prodName = 'Room AI'
+
 export const model = {
     interior: 'jschoormans/interior-v2:8372bd24c6011ea957a0861f0146671eed615e375f038c13259c1882e3c8bac7'
 }
