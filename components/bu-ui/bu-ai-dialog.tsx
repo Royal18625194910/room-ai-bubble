@@ -19,7 +19,7 @@ const BuAiDialog = ({ open, orgImage, aiImage, onClose }: BuAiDialogProps) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "ai-transformed-image.jpg"; // 设置下载文件名
+      a.download = "ai-transformed-image.png"; // 设置下载文件名
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

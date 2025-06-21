@@ -1,13 +1,29 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { creditPackages } from "@/constants/credits";
+import { creditPackages, CreditPackageType } from "@/constants/credits";
+import { useUserStore } from "@/store/useUser.Store";
 import { Sparkles, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const BuyCreditsPage = () => {
-  const handleSelect = async (credits: number, price: number) => {
+  const router = useRouter();
+  const userDetail = useUserStore((state) => state.userDetail);
+  const handleSelect = async (item: CreditPackageType) => {
     // TODO: 实现支付逻辑
-    console.log(`选择了 ${credits} 积分，价格：$${price}`);
+    console.log(`选择了 ${item.credits} 积分，价格：$${item.price}`);
+    const res = await getCheckout(item.productId);
+    console.log("getCheckout", res);
+  };
+
+  const getCheckout = async (productId: string) => {
+    const res = await (
+      await fetch(
+        `/api/checkout?userId=${userDetail.id}&productId=${productId}`
+      )
+    ).json();
+    console.log("getCheckout", res);
+    router.push(res.checkoutUrl);
   };
 
   // 计算每个套餐的单价
@@ -34,12 +50,10 @@ const BuyCreditsPage = () => {
               key={pkg.credits}
               className={`bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-between border transition-all relative
                 ${
-                  pkg.credits === bestValue.credits
-                    ? "border-purple-500"
-                    : "hover:border-purple-500"
+                  pkg.recommended ? "border-primary" : "hover:border-primary"
                 }`}>
-              {pkg.credits === bestValue.credits && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-3 py-2 rounded-full text-sm flex items-center">
+              {pkg.recommended && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-3 py-2 rounded-full text-sm flex items-center">
                   <Zap className="w-4 h-4 mr-1" />
                   <p className="text-nowrap">Best Value</p>
                 </div>
@@ -53,12 +67,12 @@ const BuyCreditsPage = () => {
               </div>
               <div className="w-full">
                 <Button
-                  onClick={() => handleSelect(pkg.credits, pkg.price)}
+                  onClick={() => handleSelect(pkg)}
                   className={`w-full text-white transition-colors
                     ${
                       pkg.credits === bestValue.credits
-                        ? "bg-purple-600 hover:bg-purple-700"
-                        : "bg-purple-500 hover:bg-purple-600"
+                        ? "bg-primary hover:bg-primary"
+                        : "bg-primary hover:bg-primary"
                     }`}>
                   <Sparkles className="w-4 h-4 mr-2" />
                   {pkg.priceDisplay}

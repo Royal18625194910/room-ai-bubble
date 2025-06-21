@@ -1,9 +1,11 @@
 import { db } from "@/config/db"
 import { replicate } from "@/config/replicate"
-import { aiGeneratedImage } from "@/config/schema"
+import { aiGeneratedImage, users } from "@/config/schema"
 import { model } from "@/constants/data"
+import { checkCredits } from "@/lib/actions"
 import { imagekit } from "@/lib/imagekit"
 import axios from "axios"
+import { eq } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 
 export const POST = async (req: NextRequest) => {
@@ -11,10 +13,19 @@ export const POST = async (req: NextRequest) => {
     console.log('reqData',reqData.userEmail)
     const prompt = `A ${reqData.roomtType} with a ${reqData.designType} style interior. ${reqData.additional}`
     
+    // check credits
+    const isHasCredits = await checkCredits(reqData.userId)
+
+    if ( !isHasCredits ) return NextResponse.json(
+        { success: false, message: "No enough credits", status: 400 },
+        { status: 400 }
+      );
+    
     try {
+       
         // ai image
-        // const out = await aiGenerateImg(reqData.image, prompt)
-        // const out = 'https://ik.imagekit.io/kuu8mr87u/interior/1749967934950_5u7xiNOL4.png'
+        // 1 const out = await aiGenerateImg(reqData.image, prompt)
+        // 1 const out = 'https://ik.imagekit.io/kuu8mr87u/interior/1749967934950_5u7xiNOL4.png'
         // covert 
         // const img = await convertImgUrl2Base64(out)
         // 图片保存
@@ -28,8 +39,24 @@ export const POST = async (req: NextRequest) => {
             aiImage: imgUrl,
             userEmail: reqData.userEmail
         }).returning()
-        console.log('res',res[0])
+        // 若果数据库插入失败，则返回错误
+        if (!res) return NextResponse.json({ message: '插入数据库失败',success: false }, { status: 500 })
+        const userCredits = await db.select({ credits: users.credits}).from(users).where(eq(users.id, reqData.userId))
+        console.log('res',res[0], reqData.userId)
+        const upCreditsRes = await db.update(users).set({credits: userCredits[0].credits - 1}).where(eq(users.id, reqData.userId))
+        console.log('upCreditsRes',upCreditsRes)
+        if (upCreditsRes.rowCount === 0) throw NextResponse.json({
+            message: 'Minus credits failed',
+            success: false,
+            status: 500
+        },{
+            status: 500
+        })
+        
+        
         return NextResponse.json({
+            success: true,
+            message: 'Image created successfully',
             imgUrl,
             ...res[0]
         })
@@ -37,7 +64,9 @@ export const POST = async (req: NextRequest) => {
     catch (error) {
         console.log('error',error)
         return NextResponse.json({
-            error: error,
+            message: 'Error',
+            success: false,
+            status: 500
         })
     }
 }

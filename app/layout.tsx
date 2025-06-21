@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import Provider from "@/provider/provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ClerkProvider>
           <Provider>{children}</Provider>
         </ClerkProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

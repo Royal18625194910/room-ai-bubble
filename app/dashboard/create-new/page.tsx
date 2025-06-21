@@ -8,14 +8,14 @@ import ImageSelect from "@/containers/ImageSelect/ImageSelect";
 import RoomType from "@/containers/RoomType/RoomType";
 import { imagekit } from "@/lib/imagekit";
 import { useUserStore } from "@/store/useUser.Store";
-import axios from "axios";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const CreateNewPage = () => {
   const [formData, setFormData] = useState<any>({});
-  const { userDetail } = useUserStore();
+  const { userDetail, setUserDetail } = useUserStore();
   const [loading, setLoading] = useState(false);
-  const [aiDialogShow, setAiDialogShow] = useState(true);
+  const [aiDialogShow, setAiDialogShow] = useState(false);
   const [orgImage, setOrgImage] = useState(
     "https://ik.imagekit.io/kuu8mr87u/1749971730854bedroom_3_gsLO0292O.jpg"
   );
@@ -32,18 +32,42 @@ const CreateNewPage = () => {
   };
 
   const handleGenerate = async () => {
+    if (!formData.roomType || !formData.designType || !formData.image)
+      return toast.error("Please fill in all the fields.");
     setLoading(true);
     const image = await uploadImg(formData?.image);
     console.log("formData", formData);
-    const res = await axios.post("/api/interior", {
-      ...formData,
-      image,
-      userEmail: userDetail.email,
+    const res = await fetch("/api/interior", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...formData,
+        image,
+        userId: userDetail.id,
+      }),
     });
-    console.log("res", res.data);
-    setOrgImage(res.data.orgImage);
-    setAiImage(res.data.imgUrl);
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      // 解析 JSON 失败
+      setAiDialogShow(false);
+      setLoading(false);
+      return toast.error("Server error, please try again later.");
+    }
+
+    if (!res.ok) {
+      setAiDialogShow(false);
+      setLoading(false);
+      return toast.error(data?.message || "Unknown error");
+    }
+
+    // 业务逻辑
+    setUserDetail({ ...userDetail, credits: userDetail.credits - 1 });
+    setOrgImage(data.orgImage);
+    setAiImage(data.imgUrl);
     setLoading(false);
+    setAiDialogShow(true);
   };
 
   const uploadImg = async (file: any) => {
