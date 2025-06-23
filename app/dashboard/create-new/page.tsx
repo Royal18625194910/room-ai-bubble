@@ -44,6 +44,7 @@ const CreateNewPage = () => {
         ...formData,
         image,
         userId: userDetail.id,
+        userEmail: userDetail.email,
       }),
     });
     let data;

@@ -12,7 +12,7 @@ export type createCheckoutProps = {
 
 export const createCheckout = async ({metadata,productId}:createCheckoutProps) => {
   const product = await creem.createCheckout({
-    xApiKey: process.env.NEXT_PUBLIC_CREEM_API_KEY!,
+    xApiKey: process.env.NEXT_PUBLIC_CREEM_TEST_API_KEY!,
     createCheckoutRequest: {
       productId,
       metadata,

@@ -10,8 +10,8 @@ import { NextRequest, NextResponse } from "next/server"
 
 export const POST = async (req: NextRequest) => {
     const reqData = await req.json()
-    console.log('reqData',reqData.userEmail)
-    const prompt = `A ${reqData.roomtType} with a ${reqData.designType} style interior. ${reqData.additional}`
+    console.log('reqData',reqData)
+    const prompt = `A ${reqData.roomType} with a ${reqData.designType} style interior. ${reqData.additional ? reqData.additional : ''}`
     
     // check credits
     const isHasCredits = await checkCredits(reqData.userId)
@@ -24,13 +24,10 @@ export const POST = async (req: NextRequest) => {
     try {
        
         // ai image
-        // 1 const out = await aiGenerateImg(reqData.image, prompt)
-        // 1 const out = 'https://ik.imagekit.io/kuu8mr87u/interior/1749967934950_5u7xiNOL4.png'
-        // covert 
-        // const img = await convertImgUrl2Base64(out)
+        const out = await aiGenerateImg(reqData.image, prompt)
+        const img = await convertImgUrl2Base64(out)
         // 图片保存
-        // const imgUrl = await saveImg(img)
-        const imgUrl = 'https://ik.imagekit.io/kuu8mr87u/interior/1749967934950_5u7xiNOL4.png'
+        const imgUrl = await saveImg(img)
         console.log('insert',reqData,imgUrl)
         const res = await db.insert(aiGeneratedImage).values({
             roomType: reqData.roomType,
@@ -78,14 +75,14 @@ const convertImgUrl2Base64 = async (img: string) => {
 }
 
 const aiGenerateImg = async (image: string, prompt: string) => {
-    const output: any = await replicate.run(model.interior as any,{
+    const output: any = await replicate.run(model.stableInterior as any,{
         input: {
             image,
             prompt
         }
     })
-    console.log('res',output[0].url().href)
-  return output[0].url().href
+    console.log('aiGenerateImg',output.url())
+  return output.url().href
 }
 
 const saveImg = async (imgFile: any) => {
